@@ -1,5 +1,5 @@
 # chain_plotter
-Generates the required objects to quasi-1D ladder chains made up of hexagon/pentagon combinations and the order of their MPS snake.
+Generates the required objects to draw quasi-1D ladder chains made up of hexagon/pentagon combinations, as well as the order of their MPS.
 
 To use: call ```generate_chain(chaintype:: int, reps:: int, closinghex:: bool)```. This returns a list of polygons and the MPS snake in order.
 Currently, all 6 chains of https://arxiv.org/abs/2211.07385 are supported (chaintypes are indexed 1 to 6).
