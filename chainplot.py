@@ -108,7 +108,7 @@ def generate_coordinates(center_pos, angle, shape_type, connection_type, a=1):
     elif connection_type == "straight":
         ordering = h_permutation
     else:
-        raise NameError('No valid snake order introduced!')
+        raise NameError(f'No valid snake order introduced! {connection_type}')
         #print("No valid snake order introduced")
     
 
@@ -154,7 +154,8 @@ def get_next_center_pos(previous_center, previous_angle, attach_where, type1, ty
         extra_rotation = np.deg2rad(60)
         if attach_where=="below":
             extra_rotation*=-1
-        
+        elif attach_where == "straight":
+                extra_rotation = 0
         
     elif type1=="p" and type2=="h":
         if attach_where == "above":
@@ -162,6 +163,8 @@ def get_next_center_pos(previous_center, previous_angle, attach_where, type1, ty
             
         elif attach_where == "below":
             extra_rotation = -np.deg2rad(18)
+            
+
         else:
             raise NameError('Invalid attach location')
     else:
@@ -170,6 +173,7 @@ def get_next_center_pos(previous_center, previous_angle, attach_where, type1, ty
     extra_rotation += np.deg2rad(previous_angle)
     x = previous_center[0]+dist*np.cos(extra_rotation)
     y = previous_center[1]+dist*np.sin(extra_rotation)
+    print(x,y)
     return(x,y)
 
 
@@ -214,7 +218,8 @@ def generate_hp_chain(chaintype=1, reps=1, closinghex=True, extra_rot = 10, a=1)
             connections.append("hup")
 
     elif chaintype == 2:
-        angles = list(np.tile([0, -18, -36, -54], reps))
+        num_shapes = 4*reps
+        angles = [-18*i for i in range(num_shapes)]
         centers= [(0,0)]
         polys = list(np.tile(["h", "p", "h", "p"], reps))
         attach = list(np.tile(["straight", "below", "straight", "below"], reps))
@@ -222,10 +227,82 @@ def generate_hp_chain(chaintype=1, reps=1, closinghex=True, extra_rot = 10, a=1)
         
         if closinghex:
             polys.append("h")
+            angles.append(angles[-1]-18)
+            connections.append("h")
+    
+    elif chaintype == 3:
+        angles = list(np.tile([0, -78, -24, -24-78], reps))
+        sequence = np.tile([-78, +54, -78, -18], reps)
+        angles = [0]
+        num_shapes = 4*reps
+        for i in range(num_shapes-1):
+            angles.append(angles[-1]+sequence[i])
+        
+        
+        centers= [(0,0)]
+        
+        polys = list(np.tile(["h", "p", "h", "p"], reps))
+        attach = list(np.tile(["below", "above", "below", "below"], reps))
+        connections = list(np.tile(["hdn", "pup", "hdn", "pdn"], reps))
+        
+        if closinghex:
+            polys.append("h")
+            angles.append(angles[-1]-18)
+            connections.append("hdn")
+    
+    elif chaintype == 4:
+        angles = list(np.tile([0, -18, -36, -36-18], reps))
+        centers= [(0,0)]
+        polys = list(np.tile(["h", "p", "h", "p"], reps))
+        attach = list(np.tile(["straight", "below", "straight", "above"], reps))
+        connections = list(np.tile(["h", "pdn", "h", "pup"], reps))
+        
+        if closinghex:
+            polys.append("h")
             angles.append(0)
             connections.append("h")
+            
+            
+    elif chaintype == 5:
+        #angles = list(np.tile([0, 42, 42-18, 66], reps))
+        num_shapes = 4*reps
+        #sequence = [0, 42, 42-18, 66]
+        sequence = np.tile([+42, -18, +42, -18], reps)
         
+        angles = [0]
+        for i in range(num_shapes-1):
+            angles.append(angles[-1]+sequence[i])
         
+        centers= [(0,0)]
+        polys = list(np.tile(["h", "p", "h", "p"], reps))
+        attach = list(np.tile(["above", "below", "above", "below"], reps))
+        connections = list(np.tile(["hup", "pdn", "hup", "pdn"], reps))
+        
+        if closinghex:
+            polys.append("h")
+            angles.append(angles[-1]-18)
+            connections.append("hup")
+            
+    elif chaintype == 6:
+        #angles = list(np.tile([0, 42, 42-18, 66], reps))
+        num_shapes = 4*reps
+        #sequence = [0, 42, 42-18, 66]
+        sequence = np.tile([-78, -18, -78, -18], reps)
+        
+        angles = [0]
+        for i in range(num_shapes-1):
+            angles.append(angles[-1]+sequence[i])
+        
+        #angles = list(np.tile([0, -78, -78-18, -98-78], reps))
+        centers= [(0,0)]
+        polys = list(np.tile(["h", "p", "h", "p"], reps))
+        attach = list(np.tile(["below", "below", "below", "below"], reps))
+        connections = list(np.tile(["hdn", "pdn", "hdn", "pdn"], reps))
+        
+        if closinghex:
+            polys.append("h")
+            angles.append(angles[-1]-18)
+            connections.append("hdn")
         
     else:
         print("Unsupported chain type")
@@ -402,9 +479,51 @@ def generate_lattice_from_bonds(bonds):
 
 
 
+
+
+test = True
+
+if test:
+    print("Testing all available chain types...")
+    chaintypes = [i for i in range(1,7)]
+    reps = [4, 5, 3, 3, 5, 1]
+    closinghex = [True, False, True, True, True, True]
+    for i in range(6):
+        
+        p, m = generate_chain(chaintype=chaintypes[i], reps=reps[i], closinghex=closinghex[i])
+        
+        
+        fig, ax = plt.subplots(figsize=(10,10))
+    
+        ax.plot(*m, ls="--", marker="o")
+        for j,s in enumerate(p):
+            ax.add_patch(s)
+    
+        ax.xaxis.set_visible(False)
+        ax.yaxis.set_visible(False)
+        ax.set_title(f"Chain type {i+1}", fontsize=16)
+
+        ax.set_aspect('equal', adjustable='box')
+
+
+
 """
+#Use this by calling: polys, mps = generate_chain(chaintype, reps, closinghex).
+Then simply
+for i in polys:
+    ax.add_patch(polys[i]) 
+draws the shapes on axes object ax,
+ax.plot(*mps) 
+plots the mps chain on top.
+
+
+
+one can use geometries such as
 geometry = ["hup", "pdn", "hdn", "pup", "hup"]
-a = generate_lattice_bonds(geometry)
-b = generate_lattice_from_bonds(a)
-#Use this by calling chain() and then ax.add_patch(polys[:]).
+(for chain type 1)
+to generate the coordinates of the lattice bonds:
+bonds = generate_lattice_bonds(geometry)
+lat = generate_lattice_from_bonds(bonds)
+The index tuples in lat can be used in conjuction to the MPS to plot objects on the midpoint of the bonds.
+
 """
