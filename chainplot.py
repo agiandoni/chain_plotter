@@ -109,7 +109,6 @@ def generate_coordinates(center_pos, angle, shape_type, connection_type, a=1):
         ordering = h_permutation
     else:
         raise NameError(f'No valid snake order introduced! {connection_type}')
-        #print("No valid snake order introduced")
     
 
     coords_mps = permute(coords_final, ordering)
@@ -231,7 +230,6 @@ def generate_hp_chain(chaintype=1, reps=1, closinghex=True, extra_rot = 10, a=1)
             connections.append("h")
     
     elif chaintype == 3:
-        angles = list(np.tile([0, -78, -24, -24-78], reps))
         sequence = np.tile([-78, +54, -78, -18], reps)
         angles = [0]
         num_shapes = 4*reps
@@ -264,9 +262,7 @@ def generate_hp_chain(chaintype=1, reps=1, closinghex=True, extra_rot = 10, a=1)
             
             
     elif chaintype == 5:
-        #angles = list(np.tile([0, 42, 42-18, 66], reps))
         num_shapes = 4*reps
-        #sequence = [0, 42, 42-18, 66]
         sequence = np.tile([+42, -18, +42, -18], reps)
         
         angles = [0]
@@ -284,16 +280,13 @@ def generate_hp_chain(chaintype=1, reps=1, closinghex=True, extra_rot = 10, a=1)
             connections.append("hup")
             
     elif chaintype == 6:
-        #angles = list(np.tile([0, 42, 42-18, 66], reps))
         num_shapes = 4*reps
-        #sequence = [0, 42, 42-18, 66]
         sequence = np.tile([-78, -18, -78, -18], reps)
         
         angles = [0]
         for i in range(num_shapes-1):
             angles.append(angles[-1]+sequence[i])
         
-        #angles = list(np.tile([0, -78, -78-18, -98-78], reps))
         centers= [(0,0)]
         polys = list(np.tile(["h", "p", "h", "p"], reps))
         attach = list(np.tile(["below", "below", "below", "below"], reps))
